@@ -53,6 +53,7 @@ def add_lora(y: torch.Tensor,
              x: torch.Tensor,
              wa_t_all: torch.Tensor,
              wb_t_all: torch.Tensor,
+             bias: torch.Tensor,
              indicies: torch.LongTensor,
              layer_idx: int,
              scale: float,
@@ -93,14 +94,23 @@ def add_lora(y: torch.Tensor,
                              dtype=torch.float32,
                              device=x.device)
     punica_kernels.dispatch_bgmv(buffer, x, wa_t_all, indicies, layer_idx, 1.0)
+
+    if bias is not None:
+      bias = bias.view(-1, bias.shape[-1])
+      bias = bias.expand(y.size(0), -1)
+      bias = bias.contiguous()
+
     punica_kernels.dispatch_bgmv(y, buffer, wb_t_all, indicies, layer_idx,
                                  scale)
+    if bias is not None:
+      y += (bias * scale)
 
 
 def add_lora_slice(y: torch.Tensor,
                    x: torch.Tensor,
                    wa_t_all: torch.Tensor,
                    wb_t_all: torch.Tensor,
+                   bias: torch.Tensor,
                    indicies: torch.LongTensor,
                    layer_idx: int,
                    scale: float,
@@ -157,6 +167,12 @@ def add_lora_slice(y: torch.Tensor,
         buffer.size(1),
         0,
     )
+
+    if bias is not None:
+      bias = bias.view(-1, bias.shape[-1])
+      bias = bias.expand(y.size(0), -1)
+      bias = bias.contiguous()
+
     punica_kernels.dispatch_bgmv_low_level(
         y,
         buffer,
@@ -168,3 +184,6 @@ def add_lora_slice(y: torch.Tensor,
         y_slice_size,
         y_offset,
     )
+
+    if bias is not None:
+      y[:, y_offset: y_offset + y_slice_size] += (bias * scale)
