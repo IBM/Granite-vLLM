@@ -1,7 +1,5 @@
 from typing import Tuple
-
 from torch import nn
-
 from vllm.logger import init_logger
 
 logger = init_logger(__name__)
@@ -32,9 +30,12 @@ def parse_fine_tuned_lora_name(name: str) -> Tuple[str, bool]:
     assert parts[1] == "model"
     if parts[-1] == "weight":
         assert parts[-2] == "lora_A" or parts[-2] == "lora_B"
-        return ".".join(parts[2:-2]), parts[-2] == "lora_A"
+        return ".".join(parts[2:-2]), parts[-2] == "lora_A", False
 
     if parts[-1] == "lora_embedding_A" or parts[-1] == "lora_embedding_B":
-        return ".".join(parts[2:-1]), parts[-1] == "lora_embedding_A"
+        return ".".join(parts[2:-1]), parts[-1] == "lora_embedding_A", False
+
+    if parts[-1] == "bias":
+        return ".".join(parts[2:-2]), False, True
 
     raise ValueError(f"{name} is unsupported format")
