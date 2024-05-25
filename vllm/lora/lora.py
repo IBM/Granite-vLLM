@@ -105,10 +105,10 @@ class PackedLoRALayerWeights(LoRALayerWeights):
         self,
         module_name: str,
         rank: int,
-        lora_alphas: List[int],
-        lora_a: List[torch.Tensor],
-        lora_b: List[torch.Tensor],
-        bias: Optional[List[torch.Tensor]],
+        lora_alphas: List[Optional[int]],
+        lora_a: List[Optional[torch.Tensor]],
+        lora_b: List[Optional[torch.Tensor]],
+        bias: List[Optional[torch.Tensor]],
         scaling: Optional[List[float]] = None,
     ) -> None:
         super().__init__(
@@ -123,12 +123,15 @@ class PackedLoRALayerWeights(LoRALayerWeights):
         )
         self.lora_alphas = lora_alphas
         if scaling is None:
-            self.scaling = [
-                lora_alpha / self.rank for lora_alpha in self.lora_alphas
+            self.scaling = [  # type: ignore
+                lora_alpha / self.rank  # type: ignore # noqa
+                for lora_alpha in self.lora_alphas
             ]
 
     @classmethod
-    def pack(cls, loras: List["LoRALayerWeights"]) -> "PackedLoRALayerWeights":
+    def pack(
+            cls, loras: List[Optional["LoRALayerWeights"]]
+    ) -> "PackedLoRALayerWeights":
         """Pack a list of LoRAs into a single LoRA.
 
         If LoRA is None, it signifies that the submodule does not have a LoRA.
@@ -153,10 +156,10 @@ class PackedLoRALayerWeights(LoRALayerWeights):
     def optimize(self) -> "PackedLoRALayerWeights":
         """Optimize the LoRA by merging the scaling into lora_b."""
         for i in range(len(self.lora_b)):
-            if self.scaling[i] == 1 or self.lora_b[i] is None:
+            if self.scaling[i] == 1 or self.lora_b[i] is None:  # type: ignore
                 continue
-            self.lora_b[i] *= self.scaling[i]
-            self.scaling[i] = 1
+            self.lora_b[i] *= self.scaling[i]  # type: ignore
+            self.scaling[i] = 1  # type: ignore
         return self
 
     @property
