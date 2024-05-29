@@ -82,6 +82,7 @@ def _apply_lora(
         x:               (batch_size, hidden_dim)
         lora_a_stacked:  (num_loras, lora_rank, hidden_dim)
         lora_b_stacked:  (num_loras, output_dim, lora_rank)
+        bias_stacked:    (num_loras, output_dim)
         indices:         (batch_size)
         output:          (batch_size, output_dim)
     """
@@ -117,6 +118,7 @@ def _apply_lora_packed_nslice(
         x:                 (batch_size, hidden_dim)
         lora_a_stacked:    3 element tuple of (num_loras, lora_rank, hidden_dim)
         lora_b_stacked:    3 element tuple of (num_loras, output_dim, lora_rank)
+        bias_stacked:      3 element tuple of (num_loras, output_dim)
         indices:           (batch_size)
         output:            (batch_size, q_slice_size + 2*kv_slice_size)
         output_slices:     n-1 element tuple of (slice_size...),
@@ -914,11 +916,14 @@ class MergedQKVParallelLinearWithLora(ColumnParallelLinearWithLoRA):
                     lora_a[2].T, non_blocking=True)
 
         if bias[0] is not None:
-            self.bias_stacked[0][index, 0, :bias[0].shape[0]].copy_(bias[0].T, non_blocking=True)
+            self.bias_stacked[0][index, 0, :bias[0].shape[0]].copy_(
+                bias[0].T, non_blocking=True)
         if bias[1] is not None:
-            self.bias_stacked[1][index, 0, :bias[1].shape[0]].copy_(bias[1].T, non_blocking=True)
+            self.bias_stacked[1][index, 0, :bias[1].shape[0]].copy_(
+                bias[1].T, non_blocking=True)
         if bias[2] is not None:
-            self.bias_stacked[2][index, 0, :bias[2].shape[0]].copy_(bias[2].T, non_blocking=True)
+            self.bias_stacked[2][index, 0, :bias[2].shape[0]].copy_(
+                bias[2].T, non_blocking=True)
 
     def apply(self, x: torch.Tensor,
               bias: Optional[torch.Tensor]) -> torch.Tensor:

@@ -15,7 +15,7 @@ class LoRALayerWeights:
         lora_alpha: int,
         lora_a: torch.Tensor,
         lora_b: torch.Tensor,
-        bias: Optional[torch.Tensor],
+        bias: Optional[torch.Tensor] = None,
         embeddings_tensor: Optional[torch.Tensor] = None,
         scaling: Optional[float] = None,
     ) -> None:
@@ -108,7 +108,7 @@ class PackedLoRALayerWeights(LoRALayerWeights):
         lora_alphas: List[Optional[int]],
         lora_a: List[Optional[torch.Tensor]],
         lora_b: List[Optional[torch.Tensor]],
-        bias: List[Optional[torch.Tensor]],
+        bias: List[Optional[torch.Tensor]] = None,
         scaling: Optional[List[float]] = None,
     ) -> None:
         super().__init__(

@@ -236,7 +236,7 @@ class LoRAModel:
                 loras[module_name] = LoRALayerWeights(module_name, rank,
                                                       lora_alpha, None, None,
                                                       lora_embeddings_tensor)
-            if is_bias: 
+            if is_bias:
                 loras[module_name].bias = tensor.to(device=device,
                                                       dtype=dtype).t()
                 if pin_memory:
@@ -470,7 +470,7 @@ class LoRAModelManager:
             if module_lora:
                 module_lora.optimize()
                 module.set_lora(index, module_lora.lora_a, module_lora.lora_b,
-                                module_lora.embeddings_tensor)
+                                module_lora.bias, module_lora.embeddings_tensor)
             else:
                 module.reset_lora(index)
         return True

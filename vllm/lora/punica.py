@@ -118,6 +118,7 @@ def add_lora(y: torch.Tensor,
         LoRA A matrices.
       wb_t_all: Shape: `[None, L, H2, R]`. All of the transposed
         LoRA B matrices.
+      bias: Shape: `[B, H2]`.
       indicies: Shape: `[B]`. Indices of the LoRA weights.
       layer_idx: Layer index of LoRA weights.
       scale: Scaling factor.
@@ -180,6 +181,7 @@ def add_lora_slice(y: torch.Tensor,
         LoRA A matrices.
       wb_t_all: Shape: `[None, L, H2, R]`. All of the transposed
         LoRA B matrices.
+      bias: Shape: `[B, H2]`.
       indicies: Shape: `[B]`. Indices of the LoRA weights.
       layer_idx: Layer index of LoRA weights.
       scale: Scaling factor.
