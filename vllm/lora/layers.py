@@ -93,10 +93,9 @@ def _apply_lora(
     add_lora(output, x, lora_a_stacked, lora_b_stacked, indices, 0, 1.0)
 
     if bias_stacked is not None:
-      bias_stacked = bias_stacked.view(-1, bias_stacked.shape[-1])
-      bias_stacked = bias_stacked.expand(output.size(0), -1)
-      bias_stacked = bias_stacked.contiguous()
-      output += bias_stacked
+        bias_stacked = bias_stacked.view(-1, bias_stacked.shape[-1])
+        bias_stacked = bias_stacked[indices]
+        output += bias_stacked
 
     return output.view_as(org_output)
 
@@ -145,8 +144,7 @@ def _apply_lora_packed_nslice(
         bias = bias_stacked[slice_idx]
         if bias is not None:
             bias = bias.view(-1, bias.shape[-1])
-            bias = bias.expand(output.size(0), -1)
-            bias = bias.contiguous()
+            bias = bias[indices]
             output[:, offset_left: offset_left + output_slices[slice_idx]] += bias
 
         offset_left += output_slices[slice_idx]
