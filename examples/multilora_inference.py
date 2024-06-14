@@ -10,7 +10,9 @@ from huggingface_hub import snapshot_download
 
 from vllm import EngineArgs, LLMEngine, SamplingParams, RequestOutput
 from vllm.lora.request import LoRARequest
+import os
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "4, 5"
 
 def create_test_prompts(lora_path: str) -> List[Tuple[str, SamplingParams]]:
     """Create a list of test prompts with their sampling parameters.
@@ -64,12 +66,17 @@ def initialize_engine() -> LLMEngine:
     #   numbers will cause higher memory usage. If you know that all LoRAs will
     #   use the same rank, it is recommended to set this as low as possible.
     # max_cpu_loras: controls the size of the CPU LoRA cache.
-    engine_args = EngineArgs(model="/home/udeshpa/granite-3b-code-base/",
+    #model_name="/net/storage149/autofs/css22/khchow/cache/models--meta-llama--Llama-2-7b-hf/snapshots/8cca527612d856d7d32bd94f8103728d614eb852/"
+    model_name="/home/udeshpa/granite-3b-code-base/"
+    engine_args = EngineArgs(model=model_name,
                              enable_lora=True,
                              max_loras=1,
                              max_lora_rank=8,
                              max_cpu_loras=2,
-                             max_num_seqs=256)
+                             max_num_seqs=256,
+                             enforce_eager=True,
+                             fully_sharded_loras=True,
+                             tensor_parallel_size=2)
     return LLMEngine.from_engine_args(engine_args)
 
 
