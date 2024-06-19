@@ -126,7 +126,6 @@ def create_sequence(prompt_token_ids=None):
         inputs={
             "prompt": "<s>",
             "prompt_token_ids": prompt_token_ids,
-            "multi_modal_data": None,
         },
         block_size=16,
     )
@@ -154,8 +153,8 @@ def test_decode_sequence_logprobs(complete_sequence: str,
     # Run sequentially.
     seq = create_sequence()
     dummy_logprobs = create_dummy_logprobs(complete_sequence_token_ids)
-    sequential_logprobs_text_chosen_token = []
-    sequential_logprobs_text_other_token = []
+    sequential_logprobs_text_chosen_token: List[str] = []
+    sequential_logprobs_text_other_token: List[str] = []
     for new_token, logprobs in zip(complete_sequence_token_ids,
                                    dummy_logprobs):
         seq.append_token_id(new_token, logprobs)
